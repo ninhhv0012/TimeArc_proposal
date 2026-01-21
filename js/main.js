@@ -109,7 +109,7 @@ function setupFilterListeners() {
         currentFilter.piName = 'all';
         piCountSlider.value = 0;
         piCountLabel.textContent = 'All';
-        
+
         // Update Select2 without triggering change event
         isUpdatingFilter = true;
         $('#piNameFilter').val('all').trigger('change.select2');
@@ -118,7 +118,7 @@ function setupFilterListeners() {
             .text('All PIs')
             .attr('title', 'All PIs');
         isUpdatingFilter = false;
-        
+
         currentZoom = { k: 1, x: 0 };
         currentPan = 0;
         document.getElementById('zoomSlider').value = 1;
@@ -444,39 +444,39 @@ function processDataAndDraw(rawData) {
             console.log('Skipping filter update (already updating)');
             return;
         }
-        
+
         const selectedValue = $(this).val();
         console.log('PI Filter changed to:', selectedValue);
-        
+
         isUpdatingFilter = true;
         currentFilter.piName = selectedValue;
         console.log('currentFilter.piName:', currentFilter.piName);
-        
+
         // Get the selected option text BEFORE applying filters
         const selectedOption = $(this).find('option:selected');
         const selectedText = selectedOption.text();
         console.log('Selected option text:', selectedText);
-        
+
         // Apply filters
         applyFilters();
-        
+
         // Force update Select2 UI after a brief delay to ensure it sticks
         setTimeout(() => {
             // Manually update the displayed text
             $('#select2-piNameFilter-container')
                 .text(selectedText)
                 .attr('title', selectedText);
-            
+
             console.log('Manually updated Select2 DOM to:', selectedText);
             console.log('Select2 DOM title:', $('#select2-piNameFilter-container').attr('title'));
-            
+
             isUpdatingFilter = false;
         }, 50);
     });
 
     // Restore previous selection (if the PI still exists in new data)
     console.log('Restoring selection. Current:', currentSelection);
-    
+
     // Use change.select2 to update UI only, not trigger full change event
     isUpdatingFilter = true;
     if (currentSelection !== 'all' && uniquePINames.includes(currentSelection)) {
@@ -487,16 +487,16 @@ function processDataAndDraw(rawData) {
         $(piNameFilter).val('all');
         currentFilter.piName = 'all';
     }
-    
+
     // Force Select2 to update its display - use plain 'change' event but with flag to prevent handler
     $(piNameFilter).trigger('change.select2');
-    
+
     // Also manually update the displayed text in case Select2 doesn't pick it up
     const selectedOption = $(piNameFilter).find('option:selected');
     $('#select2-piNameFilter-container')
         .text(selectedOption.text())
         .attr('title', selectedOption.text());
-    
+
     isUpdatingFilter = false;
 
     // Log sample proposals (first 3)
