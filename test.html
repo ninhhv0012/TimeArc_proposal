@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Dataset Loading</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>Test Dataset Loading</h1>
+    <div id="output"></div>
+    <pre id="log"></pre>
+
+    <script>
+        const output = document.getElementById('output');
+        const log = document.getElementById('log');
+        
+        function addLog(msg) {
+            log.textContent += msg + '\n';
+            console.log(msg);
+        }
+
+        fetch('dataset.xlsx')
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, {type: 'array', cellDates: true});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                addLog(`✓ Loaded sheet: ${firstSheetName}`);
+                
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                    cellDates: true, 
+                    defval: "",
+                    raw: false
+                });
+                
+                addLog(`✓ Total rows: ${jsonData.length}`);
+                
+                // Tìm proposal 21-0295
+                const proposal21_0295 = jsonData.filter(d => d.proposal_no === '21-0295');
+                addLog(`\n🔍 Found ${proposal21_0295.length} rows for proposal 21-0295:`);
+                
+                proposal21_0295.forEach((d, i) => {
+                    addLog(`  Row ${i+1}:`);
+                    addLog(`    date_submitted: ${d.date_submitted} (type: ${typeof d.date_submitted})`);
+                    addLog(`    PI: ${d.PI}`);
+                    
+                    // Parse năm
+                    let year = null;
+                    let dateStr = d.date_submitted;
+                    
+                    if (dateStr instanceof Date && !isNaN(dateStr)) {
+                        year = dateStr.getFullYear();
+                        addLog(`    → Parsed year from Date object: ${year}`);
+                    } else if (typeof dateStr === 'string' && dateStr.trim()) {
+                        dateStr = dateStr.trim();
+                        
+                        // Thử các format
+                        if (/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/.test(dateStr)) {
+                            year = parseInt(dateStr.substring(0, 4));
+                            addLog(`    → Parsed year from YYYY-MM-DD format: ${year}`);
+                        } else if (/^\d{1,2}[-\/]\d{1,2}[-\/]\d{4}$/.test(dateStr)) {
+                            year = parseInt(dateStr.split(/[-\/]/).pop());
+                            addLog(`    → Parsed year from MM-DD-YYYY format: ${year}`);
+                        } else {
+                            const dateObj = new Date(dateStr);
+                            if (!isNaN(dateObj.getTime())) {
+                                year = dateObj.getFullYear();
+                                addLog(`    → Parsed year from Date parse: ${year}`);
+                            } else {
+                                const yearMatch = dateStr.match(/\b(19|20)\d{2}\b/);
+                                if (yearMatch) {
+                                    year = parseInt(yearMatch[0]);
+                                    addLog(`    → Parsed year from regex: ${year}`);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!year) {
+                        addLog(`    ⚠️ FAILED to parse year!`);
+                    }
+                });
+                
+                output.innerHTML = `<p style="color: green; font-weight: bold;">✓ Test completed. Check console and log above.</p>`;
+            })
+            .catch(error => {
+                addLog(`❌ Error: ${error}`);
+                output.innerHTML = `<p style="color: red;">Error: ${error}</p>`;
+            });
+    </script>
+</body>
+</html>

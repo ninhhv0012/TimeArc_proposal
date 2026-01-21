@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeArc: Principal Investigator Collaboration Timeline</title>
+
+    <!-- External Dependencies -->
+    <!-- Tailwind CSS: Utility-first CSS framework for rapid UI development -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- D3.js v7: JavaScript library for data-driven document manipulation and visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- jQuery: Required for Select2 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2: Enhanced select boxes with search functionality -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- SheetJS: JavaScript library for reading and parsing Excel files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body class="p-6">
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">TimeArc: Principal Investigator Collaboration
+                    Visualization</h1>
+                <p class="text-slate-500 text-sm mt-1">Visualize PI collaborations across research proposals over time.
+                </p>
+            </div>
+
+            <!-- File Upload Control -->
+            <div class="mt-4 md:mt-0">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Upload Data (Excel/CSV)</label>
+                <input type="file" id="uploadFile" accept=".csv, .xlsx, .xls" class="block w-full text-sm text-slate-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100" title="Upload an Excel (.xlsx, .xls) or CSV file with proposal data" />
+            </div>
+        </div>
+
+        <!-- Filter Controls Panel -->
+        <div class="flex flex-wrap gap-4 mb-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+
+            <!-- PI Name Filter -->
+            <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-slate-700">Filter by PI:</label>
+                <select id="piNameFilter"
+                    class="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    style="min-width: 250px;" title="Filter proposals by specific Principal Investigator">
+                    <option value="all">All PIs</option>
+                </select>
+            </div>
+
+            <!-- PI Count Filter -->
+            <div class="flex items-center gap-3 border-l border-slate-300 pl-4">
+                <label class="text-sm font-medium text-slate-700">Number of PIs:</label>
+                <input type="range" id="piCountFilter" min="0" max="10" step="1" value="0"
+                    class="w-40 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    title="Filter proposals by number of Principal Investigators">
+                <span id="piCountLabel" class="text-xs text-slate-600 w-20 font-medium">All</span>
+                <span id="filterInfo" class="text-xs text-slate-500"></span>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="flex items-center gap-2 border-l border-slate-300 pl-4">
+                <label class="text-sm font-medium text-slate-700">Zoom:</label>
+                <input type="range" id="zoomSlider" min="0.5" max="10" step="0.1" value="1"
+                    class="w-32 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    title="Zoom in/out on the timeline">
+                <span id="zoomLevel" class="text-xs text-slate-600 w-12">1.0x</span>
+                <button id="zoomReset"
+                    class="px-2 py-1 text-sm bg-slate-200 hover:bg-slate-300 text-slate-700 rounded transition-colors"
+                    title="Reset zoom to 100%">
+                    ⊙
+                </button>
+            </div>
+
+            <!-- Reset Button -->
+            <button id="resetFilter"
+                class="px-3 py-1.5 text-sm bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md transition-colors"
+                title="Reset all filters and zoom">
+                🔄 Reset All
+            </button>
+        </div>
+
+        <!-- Legend Area -->
+        <!-- Dynamically populated by JavaScript with theme colors -->
+        <div id="legend" class="flex flex-wrap gap-4 mb-4 text-xs justify-end"></div>
+
+        <!-- Chart Visualization Area -->
+        <!-- SVG chart is rendered here by D3.js -->
+        <div id="chart" class="chart-container w-full overflow-x-auto min-h-[700px] relative"></div>
+    </div>
+
+    <!-- Tooltip Element -->
+    <!-- Positioned absolutely, shown on hover over proposals or PI labels -->
+    <div id="tooltip"></div>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>
